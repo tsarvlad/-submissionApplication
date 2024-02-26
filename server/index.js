@@ -47,7 +47,6 @@ app.post('/auth/register', upload.single('picture'), register)
 // Routes
 app.use('/auth', authRoutes)
 app.use('/user', userRoutes)
-
 //Mongoose Setup
 
 
