@@ -55,9 +55,6 @@ export const patchTrack = async (req, res) => {
             let lastDate = user?.timeMarks?.data[length - 1]?.date
             let nowTime = new Date()
 
-            lastDate.setHours(2, 0, 0, 0)
-            nowTime.setHours(2, 0, 0, 0)
-
             let differenceS = Math.floor(Math.abs(lastDate.getTime() - nowTime.getTime())) / 1000
             let differenceD = Math.round(differenceS / 60 / 60 / 24)
             return {

@@ -1,0 +1,11 @@
+[33m633ff5a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m add exact hours to last activity to HomePage
+[33m13341fb[m CORS fix Express
+[33m557d6a0[m fix CORS configuration
+[33m12bd443[m fix hardcoded backend url
+[33m155507a[m vercel file fix
+[33m29977c0[m add vercel.json
+[33mb6a0049[m client application restored
+[33me4a0abd[m delete client because of strange bag
+[33m532b7ae[m commit
+[33m3f0d613[m new edition
+[33mab8b4c4[m first commit
