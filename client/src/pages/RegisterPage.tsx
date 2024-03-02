@@ -75,7 +75,7 @@ const RegisterPage = () => {
 
     const login = async (data: any) => {
         const loggedInUser = await fetch(
-            'https://submission-app-server.onrender.com/auth/login',
+            `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -113,7 +113,7 @@ const RegisterPage = () => {
         formData.append('picturePath', picture[0].name)
 
         const savedUserResponse = await fetch(
-            "https://submission-app-server.onrender.com/auth/register",
+            `${process.env.REACT_APP_BACKEND_URL}/auth/register`,
             {
                 method: "POST",
                 body: formData,

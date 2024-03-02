@@ -167,7 +167,7 @@ const Navbar = () => {
                     {isAuth ? (<Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="Remy Sharp" src={`https://submission-app-server.onrender.com/assets/${user?.picturePath}`}
+                                <Avatar alt="Remy Sharp" src={`${process.env.REACT_APP_BACKEND_URL}}/assets/${user?.picturePath}`}
                                     sx={{ width: 40, height: 40 }}
                                 />
                             </IconButton>

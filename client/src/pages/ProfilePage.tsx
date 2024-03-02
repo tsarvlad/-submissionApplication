@@ -27,7 +27,7 @@ const ProfilePage = () => {
     const [since, setSince] = useState<Date>(new Date())
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(`https://submission-app-server.onrender.com/user/${user?._id}/track`,
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user?._id}/track`,
                 {
                     method: "GET",
                     headers: {
@@ -48,7 +48,7 @@ const ProfilePage = () => {
     const [condition, setCondition] = useState<Boolean>(false)
 
     const handleAddSubmission = async () => {
-        const request = await fetch(`https://submission-app-server.onrender.com/user/${user._id}/track/addlast`,
+        const request = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/addlast`,
             {
                 method: "PATCH",
                 headers: {
@@ -68,7 +68,7 @@ const ProfilePage = () => {
 
     }
     const handleDeleteLastSubmission = async () => {
-        const request = await fetch(`https://submission-app-server.onrender.com/user/${user._id}/track/deletelast`,
+        const request = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/deletelast`,
             {
                 method: "PATCH",
                 headers: {
@@ -97,7 +97,7 @@ const ProfilePage = () => {
                     }}>
                         <CardMedia
                             sx={{ height: 240 }}
-                            image={`https://submission-app-server.onrender.com/assets/${user?.picturePath}`}
+                            image={`${process.env.REACT_APP_BACKEND_URL}/assets/${user?.picturePath}`}
                             title="green iguana"
                         />
                         <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

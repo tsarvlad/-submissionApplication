@@ -42,7 +42,7 @@ const HomePage = () => {
     const [dummyUseEffectVariable, setDummyUseEffectVariable] = useState<Array<number>>([])
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(`https://submission-app-server.onrender.com/user/${user?._id}/track`,
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user?._id}/track`,
                 {
                     method: "GET",
                     headers: {
@@ -61,7 +61,7 @@ const HomePage = () => {
     const [condition, setCondition] = useState<boolean>(false)
     const handleSubmit = async () => {
         const submitRequest = await fetch(
-            `https://submission-app-server.onrender.com/user/${user?._id}/track/submit`,
+            `${process.env.REACT_APP_BACKEND_URL}/user/${user?._id}/track/submit`,
             {
                 method: "PATCH",
                 headers: {

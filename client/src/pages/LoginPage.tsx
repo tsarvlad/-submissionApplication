@@ -40,7 +40,7 @@ const LoginPage = () => {
 
     const login = async (data: any) => {
         const loggedInUser = await fetch(
-            'https://submission-app-server.onrender.com/auth/login',
+            `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

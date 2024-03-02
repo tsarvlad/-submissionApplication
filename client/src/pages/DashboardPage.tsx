@@ -99,7 +99,7 @@ const DashboardPage = () => {
     useEffect(() => {
         const fetchFunction = async () => {
             const request = await fetch(`
-            https://submission-app-server.onrender.com/user/${user._id}/track/dashboard/info
+            ${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/dashboard/info
             `, {
                 method: "GET",
                 headers: {
