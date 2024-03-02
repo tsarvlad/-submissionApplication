@@ -39,6 +39,7 @@ const HomePage = () => {
     }
 
     const [value, setValue] = useState<number>(0)
+    const [exactTimestamp, setExactTimestamp] = useState<number>(0);
     const [dummyUseEffectVariable, setDummyUseEffectVariable] = useState<Array<number>>([])
     useEffect(() => {
         const fetchData = async () => {
@@ -51,7 +52,8 @@ const HomePage = () => {
                     },
                 })
             const responseJson = await response.json()
-            const { differenceD } = responseJson
+            const { differenceD, differenceS } = responseJson
+            setExactTimestamp(differenceS);
             setValue(differenceD)
         }
         fetchData()
@@ -101,7 +103,7 @@ const HomePage = () => {
                     <ReactSpeedometer
                         maxValue={50}
                         value={value}
-                        currentValueText={'Days: ' + value}
+                        currentValueText={'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"}
                         // customSegmentStops={[0, 7, 11, 18, 25, 50]}
                         customSegmentStops={[0, 7, 14, 21, 28, 50]}
                         segmentColors={['#ff471a',
