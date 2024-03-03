@@ -111,7 +111,7 @@ export const getUserDashboardInfo = async (req, res) => {
         for (let i = 0; i < spacing; i++) {
             formattedDates.push('')
         }
-        res.status(200).json({ formattedDates, formattedDays })
+        res.status(200).json({ formattedDates, formattedDays, userData })
     }
     catch (error) {
         res.status(500).json({ message: error.message })
