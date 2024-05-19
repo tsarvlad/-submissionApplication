@@ -13,11 +13,16 @@ import {
     Legend,
 } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom'
-import { Line } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import {FormControl, InputLabel, Select, MenuItem} from '@mui/material'
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 ChartJS.register(
     CategoryScale,
@@ -43,8 +48,6 @@ const DashboardPage = () => {
     const [days, setDays] = useState<Array<number>>([0])
     const [totalDays, setTotalDays] = useState<number>(0)
     const [userData, setUserData] = useState<Array<object>>([{date:'rst'}]);
-
-console.log(userData)
 
     const [sortModel, setSortModel] = React.useState<any>([{ field: 'date', sort: 'desc' }])
 
@@ -223,14 +226,92 @@ console.log(userData)
     ];
 
 
+    const [blockSize, setBlockSize] = useState<string>('5');
+    const [blockChainDates, setBlockChainDates] = useState([]);
+    const [blockChainDays,setBlockChainDays] = useState([])
+    const [blockChainColors, setBlockChainColors] = useState([])
+
+    const handleBlockSizeChangeInput = (event: any) => {
+        setBlockSize(event.target.value as string);
+    };
+    
+
+    const [alignment, setAlignment] = React.useState<string | null>('lineChart');
+
+    
+    const blockChainOptions: any = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: `Visualization cover: ${totalDays} days`,
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context: any) {
+                        // Get the original value
+                        const value = context.raw;
+                        // Divide the value by 2
+                        const modifiedValue = value / parseInt(blockSize);
+                        // Return the modified value
+                        return `${modifiedValue} avg`;
+                    }
+                }
+            },
+            zoom: {
+                pan: {
+                    // pan options and/or events
+                },
+                limits: {
+                    // axis limits
+                },
+                zoom: {
+                    // zoom options and/or events
+                    wheel: {
+                        enabled: true,
+                    },
+                    pinch: {
+                        enabled: true
+                    },
+                    mode: 'x',
+                }
+            }
+            // responsive: true
+        },
+
+    };
+
+
+    const blockChainData: any = {
+        //ts-ignore
+        labels: blockChainDates,
+        datasets: [
+            {
+                label: '',
+                data: blockChainDays,
+                backgroundColor: blockChainColors
+            },
+        ],
+    }
+
+    const handleAlignment = (
+      event: React.MouseEvent<HTMLElement>,
+      newAlignment: 'blockChainChart' | 'lineChart' | null,
+    ) => {
+      setAlignment(newAlignment);
+    };
+
     const reloadPage = (): void => {
         window.location.reload()
     }
     useEffect(() => {
         const fetchFunction = async () => {
             const request = await fetch(`
-            ${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/dashboard/info
-            `, {
+            ${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/dashboard/info?blockSize=${blockSize}`,
+            {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -239,20 +320,23 @@ console.log(userData)
             }
             )
             const response = await request.json()
-            console.log('response', response)
-            const { formattedDates, formattedDays, userData } = response
+            const { formattedDates, formattedDays, userData, blockchain } = response
             setDates(formattedDates)
             setDays(formattedDays)
             setUserData(userData);
+            setBlockChainDates(blockchain?.blockchainDates)
+            setBlockChainDays(blockchain?.blockchainDays)
+            setBlockChainColors(blockchain?.blockchainColors)
+
             var myFilterArray = formattedDays.filter(Boolean);
             setTotalDays(formattedDays.reduce((a: number, b: number) => a + b))
         }
         fetchFunction()
-    }, [])
+    }, [blockSize])
 
     const [age, setAge] = useState<number>(userData.length || 0)
+
     const handleChange = (event: any) => {
-        console.log(age)
         setAge(event.target.value);
       };
     return (
@@ -260,16 +344,64 @@ console.log(userData)
             <Paper sx={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 mt: isMobileScreen ? 2 : 6, padding: '1rem',
-                height: isMobileScreen ? '600px' : undefined,
+                height: isMobileScreen ? '700px' : undefined,
             }}>
-                <Typography variant='h6'>All-time Chart</Typography>
+                <Container sx={{display:'flex', flexDirection:"row", width:"full",
+                    justifyContent: "space-between"
+                }}>
+                <div style={{width:"100px"}}>
+                {alignment === 'blockChainChart' && 
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Block Size</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={blockSize}
+                        label="Block Size"
+                        onChange={handleBlockSizeChangeInput}
+                      >
+                        <MenuItem value={4}>4</MenuItem>                        
+                        <MenuItem value={5}>5</MenuItem>
+                        <MenuItem value={6}>6</MenuItem>
+                        <MenuItem value={7}>7</MenuItem>
+                        <MenuItem value={8}>8</MenuItem>
+                        <MenuItem value={10}>10</MenuItem>
+                        <MenuItem value={12}>12</MenuItem>
+                        <MenuItem value={16}>16</MenuItem>
+                        <MenuItem value={20}>20</MenuItem>
+                        <MenuItem value={24}>24</MenuItem>
+                        <MenuItem value={32}>32</MenuItem>
 
-                < Line options={options} data={data}
+                      </Select>
+                    </FormControl>
+                }
+                </div>
+                <Typography variant='h6' sx={{paddingTop: '0.5rem'}}>All-time Chart</Typography>
+                <ToggleButtonGroup
+                    value={alignment}
+                    exclusive
+                    onChange={handleAlignment}
+                    aria-label="text alignment"
+                    sx={{width:"100px"}}
+                    >
+                    <ToggleButton value="lineChart" aria-label="left aligned">
+                        <TimelineIcon />
+                    </ToggleButton>
+                    <ToggleButton value="blockChainChart" aria-label="centered">
+                        <ViewColumnIcon />
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                </Container>
+
+                {alignment === 'lineChart' && < Line options={options} data={data}
                     height={isMobileScreen ? '600vh' : undefined}
-                    width={isMobileScreen ? '400vh' : undefined} />
-                <Button variant='contained' size='large' sx={{ width: '150px' }}
-                    onClick={reloadPage}>Reload</Button>
-                    
+                    width={isMobileScreen ? '400vh' : undefined} />}
+                {alignment === 'blockChainChart' && 
+                    <Bar options={blockChainOptions} data={blockChainData}
+                    height={isMobileScreen ? '600vh' : undefined}
+                    width={isMobileScreen ? '400vh' : undefined}
+                    />
+                }    
                 {/* <Button variant='contained' size='large' sx={{ width: '150px', height: "42px" }}>
 
                 <FormControl fullWidth>
@@ -292,14 +424,13 @@ console.log(userData)
                 <div className="mt-5" style={{ marginTop: "32px", height: 631, width: "100%" }}>
 
                  <DataGrid
-                        //to keep unique id, because my datastructure doesn't have one so I have created this vierd thing
+                        //to keep unique id, because my datastructure doesn't have one so I have created this wierd thing
                         //I believe collission is impossible
                         getRowId={(row) => row.date + Math.random() + Math.random() + Math.random() + Math.random()}
                         rows={userData}
                         columns={
                             isMobileScreen ? mobileColumns : columns
                         }
-                        autoPageSize={true}
                         sortModel={sortModel}
                         onSortModelChange={(model) => setSortModel(model)}
                         isRowSelectable={() => false}

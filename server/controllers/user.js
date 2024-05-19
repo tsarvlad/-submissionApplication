@@ -111,7 +111,48 @@ export const getUserDashboardInfo = async (req, res) => {
         for (let i = 0; i < spacing; i++) {
             formattedDates.push('')
         }
-        res.status(200).json({ formattedDates, formattedDays, userData })
+
+        // 'blockchain data': array of Dates, Days, colors
+        const [
+            blockchainDates,
+            blockchainDays,
+            blockchainColors
+        ] = [ [], [], [] ];
+
+        const BLOCK_SIZE = req?.query?.blockSize * 1 || 5
+
+        const defineColorPower = (colorLevel) => {
+            const [greenPower, redPower] = [colorLevel, BLOCK_SIZE-colorLevel];
+            const [greenTone, redTone] = [(255*greenPower)/BLOCK_SIZE, (255*redPower)/BLOCK_SIZE]
+
+            return `rgb(${redTone}, ${greenTone}, 0)`
+        }
+
+        //color for unfinished block
+        const whiteBlockColor = `rgb(204, 255, 255)`
+
+        for (let i = 0; i < userData.length; i += BLOCK_SIZE) {
+            const group = userData.slice(i, i + BLOCK_SIZE);
+    
+            const finalDate = group[group.length - 1].date?.toLocaleDateString('en-US')
+            const totalDays = group.reduce((sum, item) => sum + item.days, 0);
+            const colorLevel = group.reduce((sum, item) => item?.condition ? sum + 1 : sum, 0)
+            const colorTone = group?.length === BLOCK_SIZE ? defineColorPower(colorLevel) : whiteBlockColor
+    
+            blockchainDates.push(finalDate);
+            blockchainDays.push(totalDays);
+            blockchainColors.push(colorTone);
+        }
+
+        const blockchain = {
+            blockchainDates,
+            blockchainDays,
+            blockchainColors
+        };
+
+        res.status(200).json(
+            {formattedDates, formattedDays, blockchain, userData}
+        )
     }
     catch (error) {
         res.status(500).json({ message: error.message })
