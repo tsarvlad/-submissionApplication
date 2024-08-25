@@ -38,7 +38,7 @@ const HomePage = () => {
         }
     }
 
-    const [value, setValue] = useState<number>(0)
+    const [value, setValue] = useState<number>()
     const [exactTimestamp, setExactTimestamp] = useState<number>(0);
     const [dummyUseEffectVariable, setDummyUseEffectVariable] = useState<Array<number>>([])
     useEffect(() => {
@@ -104,8 +104,10 @@ const HomePage = () => {
                         maxValue={50}
                         value={value}
                         currentValueText={
-                            value ? 'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"
-                        : 'Asteapta...'}
+                            value 
+                            ? 'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"
+                            : 'Loading...'
+                        }
                         // customSegmentStops={[0, 7, 11, 18, 25, 50]}
                         customSegmentStops={[0, 7, 14, 21, 28, 50]}
                         segmentColors={['#ff471a',
