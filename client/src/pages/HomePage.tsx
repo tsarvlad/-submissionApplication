@@ -103,7 +103,9 @@ const HomePage = () => {
                     <ReactSpeedometer
                         maxValue={50}
                         value={value}
-                        currentValueText={'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"}
+                        currentValueText={
+                            value ? 'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"
+                        : 'Asteapta...'}
                         // customSegmentStops={[0, 7, 11, 18, 25, 50]}
                         customSegmentStops={[0, 7, 14, 21, 28, 50]}
                         segmentColors={['#ff471a',
