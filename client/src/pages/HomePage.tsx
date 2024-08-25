@@ -38,7 +38,7 @@ const HomePage = () => {
         }
     }
 
-    const [value, setValue] = useState<number>()
+    const [value, setValue] = useState<number>(-1)
     const [exactTimestamp, setExactTimestamp] = useState<number>(0);
     const [dummyUseEffectVariable, setDummyUseEffectVariable] = useState<Array<number>>([])
     useEffect(() => {
@@ -104,7 +104,7 @@ const HomePage = () => {
                         maxValue={50}
                         value={value}
                         currentValueText={
-                            value 
+                            value !== -1
                             ? 'Days: ' + value + " (" + Math.round(exactTimestamp / 60 / 60) + "h" + ")"
                             : 'Loading...'
                         }
