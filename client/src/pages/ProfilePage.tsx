@@ -84,6 +84,118 @@ const ProfilePage = () => {
         }
     }
 
+    function generateDatesBetween(lastDateStr: string, nowTimeStr: string): string[] {
+        const lastDate = new Date(lastDateStr);
+        const nowTime = new Date(nowTimeStr);
+
+        if (isNaN(lastDate.getTime()) || isNaN(nowTime.getTime())) {
+            throw new Error("Invalid date format");
+        }
+
+        if (lastDate >= nowTime) {
+            throw new Error("lastDate must be earlier than nowTime");
+        }
+
+        const result: string[] = [];
+
+        const weights: { days: number; weight: number }[] = [
+            { days: 2, weight: 55 },
+            { days: 3, weight: 20 },
+            { days: 1, weight: 15 },
+            { days: 4, weight: 10 },
+        ];
+
+        // Create weighted pool
+        const weightedChoices: number[] = [];
+        weights.forEach(({ days, weight }) => {
+            for (let i = 0; i < weight; i++) {
+                weightedChoices.push(days);
+            }
+        });
+
+        let currentDate = new Date(lastDate.getTime());
+        currentDate.setDate(currentDate.getDate() + 2); // Ensure minimum 2-day offset
+
+        while (currentDate < nowTime) {
+            const remainingDays = (nowTime.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+            if (remainingDays < 2) break;
+
+            const dateWithTime = new Date(currentDate.getTime());
+
+            // Random hour between 11 and 19
+            const hour = Math.floor(Math.random() * 9) + 11;
+            const minute = Math.floor(Math.random() * 60);
+            const second = Math.floor(Math.random() * 60);
+
+            dateWithTime.setHours(hour, minute, second, 0);
+            result.push(dateWithTime.toISOString());
+
+            // Choose next spacing
+            const diffDays = weightedChoices[Math.floor(Math.random() * weightedChoices.length)];
+            currentDate.setDate(currentDate.getDate() + diffDays);
+        }
+
+        return result;
+    }
+
+    const handleForceRandomSubmissions = async (): Promise<void> => {
+        if (!user?._id || !token) {
+            console.error("Missing user or token");
+            return;
+        }
+
+        try {
+            const trackResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!trackResponse.ok) {
+                const error = await trackResponse.json();
+                toast.error(error.message || "Failed to fetch track data.");
+                return;
+            }
+
+            const { lastDate, nowTime }: { lastDate: string; nowTime: string } = await trackResponse.json();
+
+            const generatedDates = generateDatesBetween(lastDate, nowTime);
+
+            let successCount = 0;
+            for (const submissionDate of generatedDates) {
+                const addResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/${user._id}/track/addlast`, {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ date: submissionDate, condition: condition }),
+                });
+
+                if (addResponse.ok) {
+                    successCount++;
+                } else {
+                    const error = await addResponse.json();
+                    console.error("Failed to submit date:", error.message);
+                }
+            }
+
+            if (successCount > 0) {
+                toast.success(`${successCount} submissions added successfully.`);
+                setSubmissionDate(new Date());
+                setCondition(false);
+            } else {
+                toast.error("No submissions were added.");
+            }
+
+        } catch (err: any) {
+            console.error(err);
+            toast.error("Unexpected error occurred.");
+        }
+    };
+
     return (
         <>
             <Container>
@@ -132,6 +244,15 @@ const ProfilePage = () => {
                                     <Typography variant='h5' gutterBottom>Delete last submission</Typography>
                                     <Button variant='contained' size='large' color='error'
                                         onClick={handleDeleteLastSubmission}>Delete</Button>
+                                </Stack>
+                                <Stack spacing={2} sx={{
+                                    padding: '2rem',
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}>
+                                    <Typography variant='h5' gutterBottom>Fill randomly submission retroactively to this day</Typography>
+                                    <Button variant='contained' size='large' color='info'
+                                            onClick={handleForceRandomSubmissions}>Force</Button>
                                 </Stack></Paper>
                         </CardContent>
                         <CardActions sx={{ display: 'flex', alignItems: 'end', flexDirection: 'column', marginRight: '1rem' }}>
